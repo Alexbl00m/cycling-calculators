@@ -42,7 +42,7 @@ st.markdown(
 )
 
 # --- Logotyp och titel ---
-st.image("Logotype_Light@2x.png", width=250)
+st.image("https://raw.githubusercontent.com/Alexbl00m/cycling-calculators/main/Logotype_Light@2x.png", width=250)
 st.title("🚴 Cycling Performance Calculators")
 
 # --- Kalkylatorval ---
