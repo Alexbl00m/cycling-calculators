@@ -92,11 +92,11 @@ else:
 # Beräkningar
 gear_ratio = chainring / sprocket
 gradient = (elevation_gain / (climb_length * 1000)) * 100
-speed_ms = (cadence * gear_ratio * wheel_circumference) / 60 if not use_target_power else None
-
 if use_target_power:
     speed_ms = (target_power * (drivetrain_efficiency / 100)) / (g * total_weight * np.sin(np.arctan(gradient / 100)))
     cadence = (speed_ms * 60) / (gear_ratio * wheel_circumference)
+else:
+    speed_ms = (cadence * gear_ratio * wheel_circumference) / 60
 
 time_seconds = (climb_length * 1000) / speed_ms
 minutes = int(time_seconds // 60)
@@ -107,27 +107,10 @@ aerodynamic_drag = 0.5 * CdA * 1.225 * (speed_ms ** 3)
 total_power = (rolling_resistance + aerodynamic_drag + (g * total_weight * np.sin(np.arctan(gradient / 100)) * speed_ms)) / (drivetrain_efficiency / 100)
 
 # Visa resultat
-st.markdown('<div class="result-container">', unsafe_allow_html=True)
-st.markdown('<p class="result-title">⚙️ Gear Ratio</p>', unsafe_allow_html=True)
-st.markdown(f'<p class="result-value">{gear_ratio:.2f}</p>', unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
-
-st.markdown('<div class="result-container">', unsafe_allow_html=True)
-st.markdown('<p class="result-title">📈 Gradient</p>', unsafe_allow_html=True)
-st.markdown(f'<p class="result-value">{gradient:.2f} %</p>', unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
-
-st.markdown('<div class="result-container">', unsafe_allow_html=True)
-st.markdown('<p class="result-title">⏱️ Tid</p>', unsafe_allow_html=True)
-st.markdown(f'<p class="result-value">{minutes} min {seconds} sek</p>', unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
-
-st.markdown('<div class="result-container">', unsafe_allow_html=True)
-st.markdown('<p class="result-title">🚀 Hastighet</p>', unsafe_allow_html=True)
-st.markdown(f'<p class="result-value">{speed_ms * 3.6:.2f} km/h</p>', unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
-
-st.markdown('<div class="result-container">', unsafe_allow_html=True)
-st.markdown('<p class="result på-title">⚡ Effektbehov</p>', unsafe_allow_html=True)
-st.markdown(f'<p class="result-value">{total_power:.2f} watt</p>', unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
+for title, value in zip([
+    "⚙️ Gear Ratio", "📈 Gradient", "⏱️ Tid", "🚀 Hastighet", "⚡ Effektbehov"],
+    [f"{gear_ratio:.2f}", f"{gradient:.2f} %", f"{minutes} min {seconds} sek", f"{speed_ms * 3.6:.2f} km/h", f"{total_power:.2f} watt"]):
+    st.markdown('<div class="result-container">', unsafe_allow_html=True)
+    st.markdown(f'<p class="result-title">{title}</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="result-value">{value}</p>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
