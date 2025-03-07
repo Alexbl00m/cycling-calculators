@@ -55,7 +55,7 @@ altitude = col2.slider("⛰️ Höjd (m)", 0, 5000, 0)
 weight = col1.slider("⚖️ Vikt (cyklist + cykel) (kg)", 50, 120, 80)
 crr = col2.slider("🛞 Rullmotståndskoefficient (CRR)", 0.00150, 0.00650, 0.00366, 0.00001)
 
-drivetrain_efficiency = col1.slider("⚙️ Drivverkets effektivitet (%)", 90.0, 100.0, 96.5)
+drivetrain_efficiency = col1.slider("⚙️ Drivverkets effektivitet (%)", 90.0, 100.0, 96.5, 0.1)
 
 include_wind = col2.checkbox("🌬️ Inkludera vindhastighet?", value=True)
 if include_wind:
@@ -94,7 +94,7 @@ if calculator_type == "Power-to-Speed":
     speed_kmh = max(speed, 0) * 3.6
 
     # --- Resultat (Snygg UI) ---
-    st.markdown(f"### Resultat:**")
+    st.markdown(f"### Resultat:")
     st.markdown(f"#### 🚴‍♂️ Uppskattad Hastighet: **{speed_kmh:.2f} km/h**")
     st.markdown(f"#### 🌪️ CdA: **{CdA:.3f} m²**")
 
@@ -121,7 +121,5 @@ elif calculator_type == "CdA Estimator":
         else:
             CdA = max(aerodynamic_power / denominator, 0)
 
-            st.markdown('<div class="result-container">', unsafe_allow_html=True)
-            st.markdown('<p class="result-title">🌪️ CdA uppskattad</p>', unsafe_allow_html=True)
-            st.markdown(f'<p class="result-value">{CdA:.5f} m²</p>', unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown(f"### Resultat:")
+            st.markdown(f"#### 🌪️ CdA uppskattad: **{CdA:.3f} m²**")
