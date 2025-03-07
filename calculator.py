@@ -50,7 +50,7 @@ calculator_type = st.radio("Välj kalkylator", ["Power-to-Speed", "CdA Estimator
 
 # --- Gemensamma Input-parametrar ---
 col1, col2 = st.columns(2)
-temperature = col1.slider("🌡️ Temperatur (°C)", -10, 40, 20, 0,1)
+temperature = col1.slider("🌡️ Temperatur (°C)", -10, 40, 20, 0.1)
 altitude = col2.slider("⛰️ Höjd (m)", 0, 5000, 0)
 weight = col1.slider("⚖️ Vikt (cyklist + cykel) (kg)", 50, 120, 80, 0,1)
 crr = col2.slider("🛞 Rullmotståndskoefficient (CRR)", 0.00150, 0.00650, 0.00366, 0.00001)
