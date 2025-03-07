@@ -50,20 +50,20 @@ calculator_type = st.radio("Välj kalkylator", ["Power-to-Speed", "CdA Estimator
 
 # --- Gemensamma Input-parametrar ---
 col1, col2 = st.columns(2)
-temperature = col1.slider("🌡️ Temperatur (°C)", -10, 40, 20)
+temperature = col1.slider("🌡️ Temperatur (°C)", -10, 40, 20, 0,1)
 altitude = col2.slider("⛰️ Höjd (m)", 0, 5000, 0)
-weight = col1.slider("⚖️ Vikt (cyklist + cykel) (kg)", 50, 120, 80)
+weight = col1.slider("⚖️ Vikt (cyklist + cykel) (kg)", 50, 120, 80, 0,1)
 crr = col2.slider("🛞 Rullmotståndskoefficient (CRR)", 0.00150, 0.00650, 0.00366, 0.00001)
 
 drivetrain_efficiency = col1.slider("⚙️ Drivverkets effektivitet (%)", 90.0, 100.0, 96.5, 0.1)
 
 include_wind = col2.checkbox("🌬️ Inkludera vindhastighet?", value=True)
 if include_wind:
-    wind_speed = col2.slider("🌪️ Vindhastighet (km/h)", -20, 20, 0)
+    wind_speed = col2.slider("🌪️ Vindhastighet (km/h)", -20, 20, 0, 0.1)
 
 include_slope = col1.checkbox("📈 Inkludera lutning?", value=True)
 if include_slope:
-    slope = col1.slider("🛤️ Vägsluttning (%)", -20.0, 20.0, 0.0)
+    slope = col1.slider("🛤️ Vägsluttning (%)", -20.0, 20.0, 0.0, 0.1)
 
 # --- Beräkna luftdensitet ---
 air_density = 1.225 * np.exp(-altitude / 8500)
@@ -102,7 +102,7 @@ if calculator_type == "Power-to-Speed":
 
 # --- CdA Estimator Calculator ---
 elif calculator_type == "CdA Estimator":
-    speed = st.slider("🚴 Hastighet (km/h)", 5, 60, 36)
+    speed = st.slider("🚴 Hastighet (km/h)", 5, 60, 36, 0.1)
     power = st.slider("⚡ Effekt (Watt)", 50, 500, 200)
 
     g = 9.8067
