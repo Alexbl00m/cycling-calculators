@@ -1,0 +1,106 @@
+import streamlit as st
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# --- MÅSTE VARA FÖRST ---
+st.set_page_config(page_title="Cykelkalkylator", layout="wide")
+
+# --- Custom Styling ---
+st.markdown(
+    """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap');
+
+    html, body, [class*="st-"] {
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    .result-container {
+        text-align: center;
+        margin-top: 30px;
+        padding: 15px;
+        border-radius: 10px;
+        background-color: #f8f9fa;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .result-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 5px;
+    }
+
+    .result-value {
+        font-size: 32px;
+        font-weight: 400;
+        color: #E6754E;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# --- Logotyp och titel ---
+st.image("Logotype_Light@2x.png", width=250)
+st.title("🚵‍♀️🏔️ Optimal Climbing Strategy")
+
+# --- Val av Kalkylator ---
+calculator_type = st.radio("Välj kalkylator", [
+    "Optimal Climbing Strategy"])
+
+g = 9.8067  # Gravitationskraft
+
+# --- Kalkylator 4: Optimal Climbing Strategy ---
+if calculator_type == "Optimal Climbing Strategy":
+    st.subheader("⛰️ Optimal Climbing Strategy")
+
+    col1, col2 = st.columns(2)
+    weight = col1.slider("Totalvikt (kg)", 50, 120, 75)
+    elevation_gain = col2.number_input("Höjdmeter att klättra (m)", min_value=10, max_value=5000, value=500)
+    climb_length = col1.number_input("Längd på klättring (km)", min_value=0.1, max_value=50.0, value=5.0)
+    
+    target_power = col2.slider("🎯 Måleffekt (Watt)", 100, 500, 250)
+    
+    wheel_options = {"700x25c (2.096m)": 2.096, "700x28c (2.136m)": 2.136, "700x32c (2.150m)": 2.150,
+                     "650b x 47mm (2.000m)": 2.000}
+    wheel_size = st.selectbox("Välj hjulstorlek", list(wheel_options.keys()), key="wheel_size_4")
+    wheel_circumference = wheel_options[wheel_size]
+    
+    chainrings = list(range(24, 69, 1))
+    sprockets = list(range(10, 53, 1))
+    best_ratio = None
+    best_cadence = None
+    best_speed = None
+    min_diff = float("inf")
+    
+    for chainring in chainrings:
+        for sprocket in sprockets:
+            gear_ratio = chainring / sprocket
+            for cadence in range(50, 131, 5):
+                speed_ms = (cadence * gear_ratio * wheel_circumference) / 60
+                gradient = (elevation_gain / (climb_length * 1000)) * 100
+                power_needed = g * weight * np.sin(np.arctan(gradient / 100)) * speed_ms
+                
+                diff = abs(power_needed - target_power)
+                if diff < min_diff:
+                    min_diff = diff
+                    best_ratio = gear_ratio
+                    best_cadence = cadence
+                    best_speed = speed_ms * 3.6
+    
+    st.markdown(f"<div class='result-container'>", unsafe_allow_html=True)
+    st.markdown(f"<p class='result-title'>🎯 Optimal Kadens</p>", unsafe_allow_html=True)
+    st.markdown(f"<p class='result-value'>{best_cadence} RPM</p>", unsafe_allow_html=True)
+    st.markdown(f"</div>", unsafe_allow_html=True)
+    
+    st.markdown(f"<div class='result-container'>", unsafe_allow_html=True)
+    st.markdown(f"<p class='result-title'>⚙️ Optimal Utväxling</p>", unsafe_allow_html=True)
+    st.markdown(f"<p class='result-value'>{best_ratio:.2f}</p>", unsafe_allow_html=True)
+    st.markdown(f"</div>", unsafe_allow_html=True)
+    
+    st.markdown(f"<div class='result-container'>", unsafe_allow_html=True)
+    st.markdown(f"<p class='result-title'>🚀 Hastighet</p>", unsafe_allow_html=True)
+    st.markdown(f"<p class='result-value'>{best_speed:.2f} km/h</p>", unsafe_allow_html=True)
+    st.markdown(f"</div>", unsafe_allow_html=True)
