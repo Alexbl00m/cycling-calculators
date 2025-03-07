@@ -54,7 +54,8 @@ col1, col2 = st.columns(2)
 temperature = col1.slider("🌡️ Temperatur (°C)", -10.0, 40.0, 20.0, 0.1)
 altitude = col2.slider("⛰️ Höjd (m)", 0, 5000, 0)
 weight = col1.slider("⚖️ Vikt (cyklist + cykel) (kg)", 50.0, 120.0, 80.0, 0.1)
-crr = col2.slider("🛞 Rullmotståndskoefficient (CRR)", 0.00150, 0.00650, 0.00366, 0.00001)
+crr = col2.slider("🛞 Rullmotståndskoefficient (CRR)", 0.00150, 0.00650, 0.00366, 0.00001, format="%.5f")
+
 drivetrain_efficiency = col1.slider("⚙️ Drivverkets effektivitet (%)", 90.0, 100.0, 96.5, 0.1)
 
 include_wind = col2.checkbox("🌬️ Inkludera vindhastighet?", value=True)
@@ -74,9 +75,9 @@ if calculator_type == "Power-to-Speed":
 
     use_custom_CdA = st.checkbox("✏️ Ange egen CdA?", value=False)
     if use_custom_CdA:
-        CdA = st.slider("✏️ Ange CdA-värde", 0.15, 0.40, 0.27, 0.001)
+        CdA = st.slider("✏️ Ange CdA-värde", 0.150, 0.400, 0.270, 0.001)
     else:
-        CdA = 0.27
+        CdA = 0.270
 
     g = 9.8067
     alpha = np.arctan(slope / 100) if include_slope else 0
