@@ -94,13 +94,8 @@ elif calculator_type == "Kadens till Hastighet":
     gear_ratio = chainring / sprocket
     speed_kmh = (cadence * gear_ratio * wheel_circumference) / (1000 / 60)
 
-    # Effektberäkning
-    weight = st.slider("Totalvikt (kg, inkl. cykel)", 50, 120, 75)
-    power_needed = (g * weight * np.sin(np.arctan(0 / 100)) * (speed_kmh / 3.6))
-
     # Visa resultat
     st.markdown(f"### 🚀 Din hastighet: **{speed_kmh:.2f} km/h**")
-    st.markdown(f"### ⚡ Effektbehov: **{power_needed:.2f} watt**")
     st.markdown(f"#### ⚙️ Gear Ratio: **{gear_ratio:.2f}**")
 
 # --- Kalkylator 3: Climbing Mode ---
