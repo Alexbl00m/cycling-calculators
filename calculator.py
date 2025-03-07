@@ -103,7 +103,7 @@ if calculator_type == "Power-to-Speed":
 
 # --- CdA Estimator Calculator ---
 elif calculator_type == "CdA Estimator":
-    speed = st.slider("🚴 Hastighet (km/h)"5.0, 60.0, 36.0, 0.1)
+    speed = st.slider("🚴 Hastighet (km/h)", 5.0, 60.0, 36.0, 0.1)
     power = st.slider("⚡ Effekt (Watt)", 50, 500, 200)
 
     g = 9.8067
