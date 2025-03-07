@@ -48,7 +48,7 @@ st.title("🚴 Gear, Speed and Climbing Calculator")
 
 st.write("Välj vilken beräkning du vill göra:")
 calculator_type = st.radio("Välj kalkylator",
-                           ["Gear Ratio Finder", "Kadens till Hastighet", "Climbing Speed Mode", "Climbing Mode (Advanced)"])
+                           ["Gear Ratio Finder", "Kadens till Hastighet", "Climbing Mode", "Climbing Mode (Advanced)"])
 
 g = 9.8067  # Gravitationskraft
 
