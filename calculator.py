@@ -94,15 +94,8 @@ if calculator_type == "Power-to-Speed":
     speed_kmh = max(speed, 0) * 3.6
 
     # --- Resultat (Snygg UI) ---
-    st.markdown('<div class="result-container">', unsafe_allow_html=True)
-    st.markdown('<p class="result-title">🚴‍♂️ Hastighet beräknad</p>', unsafe_allow_html=True)
-    st.markdown(f'<p class="result-value">{speed_kmh:.2f} km/h</p>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown('<div class="result-container">', unsafe_allow_html=True)
-    st.markdown('<p class="result-title">🌪️ CdA</p>', unsafe_allow_html=True)
-    st.markdown(f'<p class="result-value">{CdA:.3f} m²</p>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
+    st.markdown(f"### 🚴‍♂️ Hastighet beräknad: **{speed_kmh:.2f} km/h**")
+    st.markdown(f"### 🌪️ CdA: **{CdA:.3f} m²**")
 
 # --- CdA Estimator Calculator ---
 elif calculator_type == "CdA Estimator":
