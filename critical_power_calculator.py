@@ -686,14 +686,14 @@ def main():
         
         elif method == "3-Minute All-Out Test":
             col1, col2 = st.columns(2)
-    
+            
             with col1:
                 end_power = st.number_input("Average power of final 30 seconds (watts)", 
-                                   min_value=50, max_value=600, value=220)
-        
+                                           min_value=50, max_value=600, value=220)
+                
                 avg_power = st.number_input("Average power for entire 3-min test (watts, optional for W')", 
-                                  min_value=0, max_value=1000, value=0)
-    
+                                          min_value=0, max_value=1000, value=0)
+            
             with col2:
                 calculation_method = st.radio(
                     "CP Calculation Method",
@@ -704,18 +704,18 @@ def main():
                         "conservative": "Conservative (8% reduction)"
                     }.get(x)
                 )
-        
-        st.markdown("""
-        <div style="background-color:#f5f5f5; padding:10px; border-radius:5px; margin-top:15px;">
-        <span style="font-size:0.9em;">
-        <strong>Calculation Methods:</strong><br>
-        • <strong>Standard:</strong> Original method using final 30s power<br>
-        • <strong>Moderate:</strong> 5% reduction to account for potential overestimation<br>
-        • <strong>Conservative:</strong> 8% reduction based on comparison studies
-        </span>
-        </div>
-        """, unsafe_allow_html=True)
-    
+                
+                st.markdown("""
+                <div style="background-color:#f5f5f5; padding:10px; border-radius:5px; margin-top:15px;">
+                <span style="font-size:0.9em;">
+                <strong>Calculation Methods:</strong><br>
+                • <strong>Standard:</strong> Original method using final 30s power<br>
+                • <strong>Moderate:</strong> 5% reduction to account for potential overestimation<br>
+                • <strong>Conservative:</strong> 8% reduction based on comparison studies
+                </span>
+                </div>
+                """, unsafe_allow_html=True)
+            
             if st.button("Calculate Critical Power"):
                 # Convert avg_power of 0 to None (optional parameter)
                 avg_power_param = avg_power if avg_power > 0 else None
@@ -725,20 +725,20 @@ def main():
                     avg_power_param, 
                     calculation_method
                 )
-            
-            st.markdown(f"""
-            <div class="reference">
-            <strong>Method used:</strong> {adjustment_description}<br><br>
-            <strong>Reference:</strong> Vanhatalo, A., Doust, J. H., & Burnley, M. (2007).
-            Determination of critical power using a 3-min all-out cycling test.
-            <em>Medicine and Science in Sports and Exercise</em>, 39(3), 548-555.
-            </div>
-            """, unsafe_allow_html=True)
-        
-        if w_prime is None and avg_power > 0:
-            st.warning("Could not calculate a valid W' value. This typically happens when the average power is too close to or less than the calculated CP, which is physiologically unlikely in a properly executed test.")
-            
-        debug_print("3-Minute Test calculation completed")
+                
+                st.markdown(f"""
+                <div class="reference">
+                <strong>Method used:</strong> {adjustment_description}<br><br>
+                <strong>Reference:</strong> Vanhatalo, A., Doust, J. H., & Burnley, M. (2007).
+                Determination of critical power using a 3-min all-out cycling test.
+                <em>Medicine and Science in Sports and Exercise</em>, 39(3), 548-555.
+                </div>
+                """, unsafe_allow_html=True)
+                
+                if w_prime is None and avg_power > 0:
+                    st.warning("Could not calculate a valid W' value. This typically happens when the average power is too close to or less than the calculated CP, which is physiologically unlikely in a properly executed test.")
+                    
+                debug_print("3-Minute Test calculation completed")
         
         elif method == "Ramp Test":
             max_power = st.number_input("Maximum power achieved (watts)", 
