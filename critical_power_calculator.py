@@ -10,165 +10,177 @@ import plotly.express as px
 from PIL import Image
 import math
 import os
+import traceback
+
+# Debug mode for troubleshooting
+DEBUG = True
+
+# Helper function for debugging
+def debug_print(message):
+    if DEBUG:
+        st.write(f"DEBUG: {message}")
 
 # Set page configuration
-st.set_page_config(
-    page_title="Critical Power Calculator",
-    page_icon="🚴",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+try:
+    st.set_page_config(
+        page_title="Critical Power Calculator",
+        page_icon="🚴",
+        layout="wide",
+        initial_sidebar_state="expanded"
+    )
+    debug_print("Page configuration set successfully")
+except Exception as e:
+    st.error(f"Error setting page configuration: {e}")
 
-# Custom CSS with Montserrat font and your brand colors
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+# Custom CSS with Montserrat font and brand colors
+try:
+    st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
 
-html, body, [class*="css"] {
-    font-family: 'Montserrat', sans-serif;
-}
+    html, body, [class*="css"] {
+        font-family: 'Montserrat', sans-serif;
+    }
 
-.main {
-    background-color: #FFFFFF;
-}
+    .main {
+        background-color: #FFFFFF;
+    }
 
-h1, h2, h3, h4, h5, h6 {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 600;
-    color: #E6754E;
-}
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 600;
+        color: #E6754E;
+    }
 
-.stButton>button {
-    background-color: #E6754E;
-    color: white;
-    font-family: 'Montserrat', sans-serif;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 16px;
-}
+    .stButton>button {
+        background-color: #E6754E;
+        color: white;
+        font-family: 'Montserrat', sans-serif;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 16px;
+    }
 
-.stButton>button:hover {
-    background-color: #c45d3a;
-}
+    .stButton>button:hover {
+        background-color: #c45d3a;
+    }
 
-.highlight {
-    color: #E6754E;
-    font-weight: 600;
-}
+    .highlight {
+        color: #E6754E;
+        font-weight: 600;
+    }
 
-.result-box {
-    background-color: #f8f8f8;
-    padding: 20px;
-    border-radius: 10px;
-    border-left: 5px solid #E6754E;
-}
+    .result-box {
+        background-color: #f8f8f8;
+        padding: 20px;
+        border-radius: 10px;
+        border-left: 5px solid #E6754E;
+    }
 
-footer {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 12px;
-    color: #888888;
-    text-align: center;
-    margin-top: 50px;
-}
+    footer {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 12px;
+        color: #888888;
+        text-align: center;
+        margin-top: 50px;
+    }
 
-.metric-card {
-    background-color: #f8f8f8;
-    padding: 15px;
-    border-radius: 8px;
-    border-left: 4px solid #E6754E;
-    margin-bottom: 10px;
-}
+    .metric-card {
+        background-color: #f8f8f8;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #E6754E;
+        margin-bottom: 10px;
+    }
 
-.metric-value {
-    font-size: 24px;
-    font-weight: 600;
-    color: #333333;
-}
+    .metric-value {
+        font-size: 24px;
+        font-weight: 600;
+        color: #333333;
+    }
 
-.metric-label {
-    font-size: 14px;
-    color: #666666;
-}
+    .metric-label {
+        font-size: 14px;
+        color: #666666;
+    }
 
-.reference {
-    font-size: 12px;
-    color: #888888;
-    border-left: 2px solid #E6754E;
-    padding-left: 10px;
-    margin-top: 10px;
-}
+    .reference {
+        font-size: 12px;
+        color: #888888;
+        border-left: 2px solid #E6754E;
+        padding-left: 10px;
+        margin-top: 10px;
+    }
 
-.method-card {
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
+    .method-card {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
 
-.method-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
+    .method-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
 
-.method-title {
-    color: #E6754E;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
+    .method-title {
+        color: #E6754E;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
 
-.toggle-view {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-}
+    .cp-explanation {
+        background-color: #fff8f5;
+        border-left: 3px solid #E6754E;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 0 8px 8px 0;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    debug_print("Custom CSS applied successfully")
+except Exception as e:
+    st.error(f"Error applying custom CSS: {e}")
 
-.toggle-button {
-    background-color: #f0f0f0;
-    border: none;
-    padding: 8px 16px;
-    margin: 0 5px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-family: 'Montserrat', sans-serif;
-}
-
-.toggle-button.active {
-    background-color: #E6754E;
-    color: white;
-}
-
-.cp-explanation {
-    background-color: #fff8f5;
-    border-left: 3px solid #E6754E;
-    padding: 15px;
-    margin: 15px 0;
-    border-radius: 0 8px 8px 0;
-}
-
-/* Feedback form styling */
-.feedback-form {
-    background-color: #f8f8f8;
-    padding: 20px;
-    border-radius: 10px;
-    margin-top: 30px;
-}
-
-/* Plotly chart container styling */
-.js-plotly-plot {
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    margin-bottom: 20px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# Add your logo
+# Add logo to the sidebar
 def add_logo():
-    # In a real implementation, replace with the path to your actual logo
-    st.sidebar.image("Logotype_Light@2x.png", width=200)
+    try:
+        # Try different possible logo paths
+        logo_paths = [
+            "Logotype_Light@2x.png",  # Direct in root
+            "logo/Logotype_Light@2x.png",  # In logo folder
+            ".devcontainer/Logotype_Light@2x.png"  # In .devcontainer
+        ]
+        
+        logo_loaded = False
+        for path in logo_paths:
+            try:
+                st.sidebar.image(path, width=200)
+                debug_print(f"Logo loaded from: {path}")
+                logo_loaded = True
+                break
+            except:
+                continue
+        
+        if not logo_loaded:
+            st.sidebar.markdown("""
+            <div style="font-family: 'Montserrat', sans-serif; color: #E6754E; font-size: 28px; font-weight: 600;">
+                LINDBLOM COACHING
+            </div>
+            """, unsafe_allow_html=True)
+            debug_print("Used text fallback for logo")
+    except Exception as e:
+        st.sidebar.write("Lindblom Coaching")
+        debug_print(f"Logo error: {str(e)}")
 
-add_logo()
+try:
+    add_logo()
+    debug_print("Logo function executed")
+except Exception as e:
+    st.sidebar.write("Lindblom Coaching")
+    debug_print(f"Logo function error: {str(e)}")
 
 # Helper function for the hyperbolic model of Critical Power
 def cp_model(t, cp, w_prime):
@@ -254,45 +266,6 @@ def calculate_cp_multi_effort(efforts):
         return cp, w_prime, ftp
     except:
         return None, None, None
-
-# Multi-effort Critical Power calculation (3-parameter model)
-def calculate_cp_multi_effort_3param(efforts):
-    """
-    Calculate CP, W', and tau using the 3-parameter model
-    
-    efforts: list of tuples (time_seconds, power_watts)
-    """
-    if len(efforts) < 3:  # Need at least 3 efforts for 3 parameters
-        return None, None, None, None
-    
-    times = np.array([e[0] for e in efforts])
-    powers = np.array([e[1] for e in efforts])
-    
-    try:
-        # Initial parameter estimates
-        p0 = [powers.min() * 0.9, 20000, 10]  # [CP_init, W'_init, tau_init]
-        
-        # Curve fitting
-        params, _ = curve_fit(cp_model_3param, times, powers, p0=p0, 
-                            bounds=([powers.min()*0.5, 5000, 0], 
-                                    [powers.min()*1.2, 50000, 100]))
-        
-        cp = params[0]
-        w_prime = params[1]
-        tau = params[2]
-        
-        if cp <= 0 or w_prime <= 0:
-            return None, None, None, None
-            
-        ftp = 0.95 * cp  # Approximate FTP as 95% of CP
-        return cp, w_prime, tau, ftp
-    except:
-        return None, None, None, None
-
-# Estimate FTP from Critical Power
-def estimate_ftp_from_cp(cp):
-    """Estimate FTP from CP as per common practice in cycling physiology"""
-    return 0.95 * cp  # FTP is typically 95% of CP
 
 # Calculate fitness metrics
 def calculate_fitness_metrics(cp, w_prime, weight):
@@ -397,64 +370,18 @@ def plot_power_duration_curve(cp, w_prime, efforts=None):
     
     return fig
 
-def plot_work_time_relationship(efforts):
-    """Plot the work-time relationship to visualize the CP model fit"""
-    if not efforts or len(efforts) < 2:
-        return None
-    
-    times = [e[0] for e in efforts]
-    powers = [e[1] for e in efforts]
-    works = [t * p for t, p in zip(times, powers)]
-    
-    # Fit linear regression
-    result = np.polyfit(times, works, 1)
-    cp = result[0]  # Slope
-    w_prime = result[1]  # Intercept
-    
-    # Create regression line points
-    x_reg = [min(times), max(times)]
-    y_reg = [cp * x + w_prime for x in x_reg]
-    
-    # Create the plot
-    fig = go.Figure()
-    
-    # Add the data points
-    fig.add_trace(go.Scatter(
-        x=times,
-        y=works,
-        mode='markers',
-        name='Test Efforts',
-        marker=dict(
-            color='green',
-            size=10,
-            line=dict(
-                color='black',
-                width=2
-            )
-        )
-    ))
-    
-    # Add the regression line
-    fig.add_trace(go.Scatter(
-        x=x_reg,
-        y=y_reg,
-        mode='lines',
-        name=f'CP Model Fit (CP = {cp:.1f}W, W\' = {w_prime:.0f}J)',
-        line=dict(color='#E6754E', width=3)
-    ))
-    
-    fig.update_xaxes(title_text="Time (seconds)")
-    fig.update_yaxes(title_text="Work (joules)")
-    
-    fig.update_layout(
-        title="Work-Time Relationship",
-        hovermode="closest",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        template="plotly_white",
-        height=500
-    )
-    
-    return fig
+def power_zone_calculator(ftp):
+    """Calculate power zones based on FTP"""
+    zones = {
+        'Zone 1 (Active Recovery)': (0, 0.55 * ftp),
+        'Zone 2 (Endurance)': (0.56 * ftp, 0.75 * ftp),
+        'Zone 3 (Tempo)': (0.76 * ftp, 0.90 * ftp),
+        'Zone 4 (Threshold)': (0.91 * ftp, 1.05 * ftp),
+        'Zone 5 (VO2max)': (1.06 * ftp, 1.20 * ftp),
+        'Zone 6 (Anaerobic Capacity)': (1.21 * ftp, 1.50 * ftp),
+        'Zone 7 (Neuromuscular Power)': (1.51 * ftp, float('inf'))
+    }
+    return zones
 
 def classify_cyclist(cp_per_kg, w_prime_cp_ratio, gender='male'):
     """Classify cyclist based on CP/kg and W'/CP ratio"""
@@ -489,230 +416,268 @@ def classify_cyclist(cp_per_kg, w_prime_cp_ratio, gender='male'):
     
     return aero_class, anaero_class
 
-def power_zone_calculator(ftp):
-    """Calculate power zones based on FTP"""
-    zones = {
-        'Zone 1 (Active Recovery)': (0, 0.55 * ftp),
-        'Zone 2 (Endurance)': (0.56 * ftp, 0.75 * ftp),
-        'Zone 3 (Tempo)': (0.76 * ftp, 0.90 * ftp),
-        'Zone 4 (Threshold)': (0.91 * ftp, 1.05 * ftp),
-        'Zone 5 (VO2max)': (1.06 * ftp, 1.20 * ftp),
-        'Zone 6 (Anaerobic Capacity)': (1.21 * ftp, 1.50 * ftp),
-        'Zone 7 (Neuromuscular Power)': (1.51 * ftp, float('inf'))
-    }
-    return zones
-
 # Main application layout
 def main():
-    st.title("Critical Power Calculator for Cyclists")
-    
-    st.markdown("""
-    <div class="cp-explanation">
-    <h3>What is Critical Power?</h3>
-    <p>Critical Power (CP) represents the highest power output a cyclist can sustain for a prolonged period without fatigue. 
-    It's a fundamental physiological threshold that separates steady-state from non-steady-state exercise domains.</p>
-    <p>W' (pronounced "W prime") is your anaerobic work capacity measured in joules, representing the finite amount of work you can perform above your Critical Power.</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Sidebar for user inputs
-    st.sidebar.header("User Information")
-    
-    weight = st.sidebar.number_input("Weight (kg)", min_value=30.0, max_value=150.0, value=70.0, step=0.1)
-    gender = st.sidebar.radio("Gender", ["Male", "Female"])
-    experience_level = st.sidebar.selectbox(
-        "Experience Level", 
-        ["Beginner (New to structured training)", 
-         "Intermediate (Some structured training experience)", 
-         "Advanced (Experienced with power-based training)"]
-    )
-    
-    # Tabs for different testing methods
-    st.write("## Select Testing Method")
-    
-    if experience_level == "Beginner (New to structured training)":
-        st.info("As a beginner, we recommend the 5-minute test as it's simpler to perform and requires less experience with pacing.")
-    elif experience_level == "Intermediate (Some structured training experience)":
-        st.info("With your experience, both the 6-minute test and ramp test are good options.")
-    else:
-        st.info("Given your advanced experience, the multi-effort method will provide the most accurate assessment of your Critical Power.")
-    
-    method = st.radio(
-        "Choose a method",
-        ["5-Minute Test", "6-Minute Test", "3-Minute All-Out Test", 
-         "Ramp Test", "Multi-Effort Method (2-4 efforts)"]
-    )
-    
-    # Initialize result variables
-    cp = None
-    w_prime = None
-    ftp = None
-    tau = None  # For 3-parameter model
-    
-    # Container for test protocol instructions
-    with st.expander("Test Protocol Instructions", expanded=True):
+    try:
+        st.title("Critical Power Calculator for Cyclists")
+        debug_print("Title set successfully")
+        
+        st.markdown("""
+        <div class="cp-explanation">
+        <h3>What is Critical Power?</h3>
+        <p>Critical Power (CP) represents the highest power output a cyclist can sustain for a prolonged period without fatigue. 
+        It's a fundamental physiological threshold that separates steady-state from non-steady-state exercise domains.</p>
+        <p>W' (pronounced "W prime") is your anaerobic work capacity measured in joules, representing the finite amount of work you can perform above your Critical Power.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        debug_print("Explanation section added")
+        
+        # Sidebar for user inputs
+        st.sidebar.header("User Information")
+        
+        weight = st.sidebar.number_input("Weight (kg)", min_value=30.0, max_value=150.0, value=70.0, step=0.1)
+        gender = st.sidebar.radio("Gender", ["Male", "Female"])
+        experience_level = st.sidebar.selectbox(
+            "Experience Level", 
+            ["Beginner (New to structured training)", 
+             "Intermediate (Some structured training experience)", 
+             "Advanced (Experienced with power-based training)"]
+        )
+        debug_print("Sidebar user inputs created")
+        
+        # Tabs for different testing methods
+        st.write("## Select Testing Method")
+        
+        if experience_level == "Beginner (New to structured training)":
+            st.info("As a beginner, we recommend the 5-minute test as it's simpler to perform and requires less experience with pacing.")
+        elif experience_level == "Intermediate (Some structured training experience)":
+            st.info("With your experience, both the 6-minute test and ramp test are good options.")
+        else:
+            st.info("Given your advanced experience, the multi-effort method will provide the most accurate assessment of your Critical Power.")
+        
+        method = st.radio(
+            "Choose a method",
+            ["5-Minute Test", "6-Minute Test", "3-Minute All-Out Test", 
+             "Ramp Test", "Multi-Effort Method (2-4 efforts)"]
+        )
+        debug_print(f"Testing method selected: {method}")
+        
+        # Initialize result variables
+        cp = None
+        w_prime = None
+        ftp = None
+        
+        # Container for test protocol instructions
+        with st.expander("Test Protocol Instructions", expanded=True):
+            if method == "5-Minute Test":
+                st.markdown("""
+                ### 5-Minute Test Protocol
+                
+                1. **Warm-up thoroughly** for 15-20 minutes including 2-3 short accelerations
+                2. **Rest** for 5 minutes
+                3. **Perform a 5-minute all-out effort** (pace yourself to maintain the highest possible average power)
+                4. **Cool down** at very light intensity
+                
+                **Pro tips:**
+                - Start slightly below your expected maximum to avoid early fatigue
+                - Aim for even pacing over the full 5 minutes
+                - Use a flat or slightly uphill road, or a trainer
+                
+                **Scientific Background:** This test was validated by Pettitt et al. (2019) who found a strong correlation between the 5-minute test and more complex multi-effort CP testing.
+                """)
+                
+            elif method == "6-Minute Test":
+                st.markdown("""
+                ### 6-Minute Test Protocol
+                
+                1. **Warm-up thoroughly** for 15-20 minutes including 2-3 short accelerations
+                2. **Rest** for 5 minutes
+                3. **Perform a 6-minute all-out effort** (pace yourself to maintain the highest possible average power)
+                4. **Cool down** at very light intensity
+                
+                **Pro tips:**
+                - The first 2 minutes should feel challenging but sustainable
+                - The middle 2 minutes will be very difficult
+                - The final 2 minutes require maximal effort and concentration
+                
+                **Scientific Background:** Vautier et al. (1995) demonstrated that a 6-minute test provides reliable estimates of Critical Power with minimal equipment and time commitment.
+                """)
+                
+            elif method == "3-Minute All-Out Test":
+                st.markdown("""
+                ### 3-Minute All-Out Test Protocol
+                
+                1. **Warm-up thoroughly** for 15-20 minutes
+                2. **Rest** for 5 minutes
+                3. **Perform a 3-minute TRULY all-out effort**:
+                   - Start with maximum acceleration
+                   - Maintain absolute maximum effort for the entire 3 minutes
+                   - DO NOT PACE YOURSELF - go as hard as possible from the start
+                4. **Cool down** at very light intensity
+                
+                **Critical point:** The valid test result depends on a truly all-out effort from the beginning. If you pace yourself, the test will not be valid!
+                
+                **Scientific Background:** Developed by Vanhatalo et al. (2007), this test is based on the concept that after depleting W', power output will fall to CP if maximum effort is maintained.
+                """)
+                
+            elif method == "Ramp Test":
+                st.markdown("""
+                ### Ramp Test Protocol
+                
+                1. **Warm-up** for 10-15 minutes at easy intensity
+                2. **Begin the ramp** at a moderate power (e.g., 100W for most cyclists)
+                3. **Increase power** by 25W every minute (or choose your preferred ramp rate)
+                4. **Continue until exhaustion** (unable to maintain cadence above 60 rpm)
+                5. **Record maximum power** achieved before failure
+                6. **Cool down** at very light intensity
+                
+                **Pro tips:**
+                - Choose a ramp rate appropriate for your fitness (faster ramps for more trained cyclists)
+                - Maintain a steady cadence throughout (80-100 rpm is ideal)
+                - The test should last between 8-12 minutes for optimal results
+                
+                **Scientific Background:** Díaz et al. (2018) validated the relationship between ramp test performance and Critical Power, showing consistent correlation across different cycling populations.
+                """)
+                
+            elif method == "Multi-Effort Method (2-4 efforts)":
+                st.markdown("""
+                ### Multi-Effort Method Protocol
+                
+                **This test requires multiple testing sessions over different days:**
+                
+                1. **Day 1:** After proper warm-up, perform a 3-4 minute all-out effort
+                2. **Day 2:** After proper warm-up, perform a 7-10 minute all-out effort
+                3. **Day 3:** After proper warm-up, perform a 12-15 minute all-out effort
+                4. **Optional Day 4:** After proper warm-up, perform a 20-30 minute all-out effort
+                
+                **Important guidelines:**
+                - Allow full recovery between testing days (ideally 48+ hours)
+                - Each effort should be truly maximal for the specified duration
+                - Record average power for each effort
+                - Standardize conditions as much as possible (same equipment, time of day, etc.)
+                
+                **Scientific Background:** This is the gold standard method described by Monod & Scherrer (1965) and subsequently refined by Hill (1993) and others. It provides the most accurate determination of CP and W'.
+                """)
+        debug_print("Test protocol instructions added")
+        
+        # Different input fields based on the selected method
         if method == "5-Minute Test":
-            st.markdown("""
-            ### 5-Minute Test Protocol
+            power_5min = st.number_input("Average power for 5-minute test (watts)", 
+                                        min_value=50, max_value=1000, value=250)
             
-            1. **Warm-up thoroughly** for 15-20 minutes including 2-3 short accelerations
-            2. **Rest** for 5 minutes
-            3. **Perform a 5-minute all-out effort** (pace yourself to maintain the highest possible average power)
-            4. **Cool down** at very light intensity
-            
-            **Pro tips:**
-            - Start slightly below your expected maximum to avoid early fatigue
-            - Aim for even pacing over the full 5 minutes
-            - Use a flat or slightly uphill road, or a trainer
-            
-            **Scientific Background:** This test was validated by Pettitt et al. (2019) who found a strong correlation between the 5-minute test and more complex multi-effort CP testing.
-            """)
-            
+            if st.button("Calculate Critical Power"):
+                cp, w_prime, ftp = calculate_cp_5min_test(power_5min, weight)
+                
+                st.markdown("""
+                <div class="reference">
+                <strong>Reference:</strong> Pettitt, R. W., Clark, I. E., Ebner, S. M., Sedgeman, D. T., & Murray, S. R. (2019). 
+                Critical power derived from a 5-min all-out test predicts 16.1-km road time-trial performance. 
+                <em>Journal of Strength and Conditioning Research</em>, 33(12), 3285-3292.
+                </div>
+                """, unsafe_allow_html=True)
+                debug_print("5-Minute Test calculation completed")
+        
         elif method == "6-Minute Test":
-            st.markdown("""
-            ### 6-Minute Test Protocol
+            power_6min = st.number_input("Average power for 6-minute test (watts)", 
+                                        min_value=50, max_value=1000, value=240)
             
-            1. **Warm-up thoroughly** for 15-20 minutes including 2-3 short accelerations
-            2. **Rest** for 5 minutes
-            3. **Perform a 6-minute all-out effort** (pace yourself to maintain the highest possible average power)
-            4. **Cool down** at very light intensity
-            
-            **Pro tips:**
-            - The first 2 minutes should feel challenging but sustainable
-            - The middle 2 minutes will be very difficult
-            - The final 2 minutes require maximal effort and concentration
-            
-            **Scientific Background:** Vautier et al. (1995) demonstrated that a 6-minute test provides reliable estimates of Critical Power with minimal equipment and time commitment.
-            """)
-            
+            if st.button("Calculate Critical Power"):
+                cp, w_prime, ftp = calculate_cp_6min_test(power_6min, weight)
+                
+                st.markdown("""
+                <div class="reference">
+                <strong>Reference:</strong> Vautier, J. F., Vandewalle, H., Arabi, H., & Monod, H. (1995).
+                Critical power as an endurance index. 
+                <em>Applied Ergonomics</em>, 26(2), 117-121.
+                </div>
+                """, unsafe_allow_html=True)
+                debug_print("6-Minute Test calculation completed")
+        
         elif method == "3-Minute All-Out Test":
-            st.markdown("""
-            ### 3-Minute All-Out Test Protocol
+            end_power = st.number_input("Average power of final 30 seconds (watts)", 
+                                       min_value=50, max_value=600, value=220)
             
-            1. **Warm-up thoroughly** for 15-20 minutes
-            2. **Rest** for 5 minutes
-            3. **Perform a 3-minute TRULY all-out effort**:
-               - Start with maximum acceleration
-               - Maintain absolute maximum effort for the entire 3 minutes
-               - DO NOT PACE YOURSELF - go as hard as possible from the start
-            4. **Cool down** at very light intensity
-            
-            **Critical point:** The valid test result depends on a truly all-out effort from the beginning. If you pace yourself, the test will not be valid!
-            
-            **Scientific Background:** Developed by Vanhatalo et al. (2007), this test is based on the concept that after depleting W', power output will fall to CP if maximum effort is maintained.
-            """)
-            
+            if st.button("Calculate Critical Power"):
+                cp, w_prime, ftp = calculate_cp_3min_test(end_power)
+                w_prime = None  # Reset to None as this simple implementation doesn't estimate W'
+                
+                st.markdown("""
+                <div class="reference">
+                <strong>Reference:</strong> Vanhatalo, A., Doust, J. H., & Burnley, M. (2007).
+                Determination of critical power using a 3-min all-out cycling test.
+                <em>Medicine and Science in Sports and Exercise</em>, 39(3), 548-555.
+                </div>
+                """, unsafe_allow_html=True)
+                debug_print("3-Minute Test calculation completed")
+        
         elif method == "Ramp Test":
-            st.markdown("""
-            ### Ramp Test Protocol
+            max_power = st.number_input("Maximum power achieved (watts)", 
+                                      min_value=100, max_value=1500, value=350)
+            ramp_rate = st.select_slider("Ramp rate (watts/minute)", 
+                                       options=[10, 15, 20, 25, 30, 35, 40, 45, 50], value=25)
             
-            1. **Warm-up** for 10-15 minutes at easy intensity
-            2. **Begin the ramp** at a moderate power (e.g., 100W for most cyclists)
-            3. **Increase power** by 25W every minute (or choose your preferred ramp rate)
-            4. **Continue until exhaustion** (unable to maintain cadence above 60 rpm)
-            5. **Record maximum power** achieved before failure
-            6. **Cool down** at very light intensity
-            
-            **Pro tips:**
-            - Choose a ramp rate appropriate for your fitness (faster ramps for more trained cyclists)
-            - Maintain a steady cadence throughout (80-100 rpm is ideal)
-            - The test should last between 8-12 minutes for optimal results
-            
-            **Scientific Background:** Díaz et al. (2018) validated the relationship between ramp test performance and Critical Power, showing consistent correlation across different cycling populations.
-            """)
-            
+            if st.button("Calculate Critical Power"):
+                cp, w_prime, ftp = calculate_cp_ramp_test(max_power, ramp_rate, weight)
+                
+                st.markdown("""
+                <div class="reference">
+                <strong>Reference:</strong> Díaz, V., Benito, P. J., Peinado, A. B., Álvarez, M., Martín, C., & Calderón, F. J. (2018).
+                Validation of a ramp protocol to determine critical power in cycle ergometry.
+                <em>Journal of Sports Medicine and Physical Fitness</em>, 58(11), 1618-1627.
+                </div>
+                """, unsafe_allow_html=True)
+                debug_print("Ramp Test calculation completed")
+        
         elif method == "Multi-Effort Method (2-4 efforts)":
-            st.markdown("""
-            ### Multi-Effort Method Protocol
+            st.write("Enter data from 2-4 maximal efforts at different durations:")
             
-            **This test requires multiple testing sessions over different days:**
+            col1, col2 = st.columns(2)
             
-            1. **Day 1:** After proper warm-up, perform a 3-4 minute all-out effort
-            2. **Day 2:** After proper warm-up, perform a 7-10 minute all-out effort
-            3. **Day 3:** After proper warm-up, perform a 12-15 minute all-out effort
-            4. **Optional Day 4:** After proper warm-up, perform a 20-30 minute all-out effort
+            efforts = []
             
-            **Important guidelines:**
-            - Allow full recovery between testing days (ideally 48+ hours)
-            - Each effort should be truly maximal for the specified duration
-            - Record average power for each effort
-            - Standardize conditions as much as possible (same equipment, time of day, etc.)
+            with col1:
+                time1 = st.number_input("Duration of Effort 1 (seconds)", 
+                                      min_value=60, max_value=600, value=180)
+                time2 = st.number_input("Duration of Effort 2 (seconds)", 
+                                      min_value=60, max_value=1800, value=480)
+                time3 = st.number_input("Duration of Effort 3 (seconds)", 
+                                      min_value=60, max_value=3600, value=0)
+                time4 = st.number_input("Duration of Effort 4 (seconds)", 
+                                      min_value=60, max_value=3600, value=0)
             
-            **Scientific Background:** This is the gold standard method described by Monod & Scherrer (1965) and subsequently refined by Hill (1993) and others. It provides the most accurate determination of CP and W'.
-            """)
-    
-    # Different input fields based on the selected method
-    if method == "5-Minute Test":
-        power_5min = st.number_input("Average power for 5-minute test (watts)", 
-                                    min_value=50, max_value=1000, value=250)
-        
-        if st.button("Calculate Critical Power"):
-            cp, w_prime, ftp = calculate_cp_5min_test(power_5min, weight)
+            with col2:
+                power1 = st.number_input("Average Power of Effort 1 (watts)", 
+                                       min_value=0, max_value=2000, value=300)
+                power2 = st.number_input("Average Power of Effort 2 (watts)", 
+                                       min_value=0, max_value=2000, value=250)
+                power3 = st.number_input("Average Power of Effort 3 (watts)", 
+                                       min_value=0, max_value=2000, value=0)
+                power4 = st.number_input("Average Power of Effort 4 (watts)", 
+                                       min_value=0, max_value=2000, value=0)
             
-            st.markdown("""
-            <div class="reference">
-            <strong>Reference:</strong> Pettitt, R. W., Clark, I. E., Ebner, S. M., Sedgeman, D. T., & Murray, S. R. (2019). 
-            Critical power derived from a 5-min all-out test predicts 16.1-km road time-trial performance. 
-            <em>Journal of Strength and Conditioning Research</em>, 33(12), 3285-3292.
-            </div>
-            """, unsafe_allow_html=True)
-    
-    elif method == "6-Minute Test":
-        power_6min = st.number_input("Average power for 6-minute test (watts)", 
-                                    min_value=50, max_value=1000, value=240)
-        
-        if st.button("Calculate Critical Power"):
-            cp, w_prime, ftp = calculate_cp_6min_test(power_6min, weight)
+            # Collect valid efforts (non-zero duration and power)
+            if time1 > 0 and power1 > 0:
+                efforts.append((time1, power1))
+            if time2 > 0 and power2 > 0:
+                efforts.append((time2, power2))
+            if time3 > 0 and power3 > 0:
+                efforts.append((time3, power3))
+            if time4 > 0 and power4 > 0:
+                efforts.append((time4, power4))
             
-            st.markdown("""
-            <div class="reference">
-            <strong>Reference:</strong> Vautier, J. F., Vandewalle, H., Arabi, H., & Monod, H. (1995).
-            Critical power as an endurance index. 
-            <em>Applied Ergonomics</em>, 26(2), 117-121.
-            </div>
-            """, unsafe_allow_html=True)
-    
-    elif method == "3-Minute All-Out Test":
-        end_power = st.number_input("Average power of final 30 seconds (watts)", 
-                                   min_value=50, max_value=600, value=220)
-        
-        if st.button("Calculate Critical Power"):
-            cp, w_prime, ftp = calculate_cp_3min_test(end_power)
-            w_prime = None  # Reset to None as this simple implementation doesn't estimate W'
-            
-            st.markdown("""
-            <div class="reference">
-            <strong>Reference:</strong> Vanhatalo, A., Doust, J. H., & Burnley, M. (2007).
-            Determination of critical power using a 3-min all-out cycling test.
-            <em>Medicine and Science in Sports and Exercise</em>, 39(3), 548-555.
-            </div>
-            """, unsafe_allow_html=True)
-    
-    elif method == "Ramp Test":
-        max_power = st.number_input("Maximum power achieved (watts)", 
-                                  min_value=100, max_value=1500, value=350)
-        ramp_rate = st.select_slider("Ramp rate (watts/minute)", 
-                                   options=[10, 15, 20, 25, 30, 35, 40, 45, 50], value=25)
-        
-        if st.button("Calculate Critical Power"):
-            cp, w_prime, ftp = calculate_cp_ramp_test(max_power, ramp_rate, weight)
-            
-            st.markdown("""
-            <div class="reference">
-            <strong>Reference:</strong> Díaz, V., Benito, P. J., Peinado, A. B., Álvarez, M., Martín, C., & Calderón, F. J. (2018).
-            Validation of a ramp protocol to determine critical power in cycle ergometry.
-            <em>Journal of Sports Medicine and Physical Fitness</em>, 58(11), 1618-1627.
-            </div>
-            """, unsafe_allow_html=True)
-    
-    elif method == "Multi-Effort Method (2-4 efforts)":
-        st.write("Enter data from 2-4 maximal efforts at different durations:")
-        
-        col1, col2 = st.columns(2)
-        
-        efforts = []
-        
-        with col1:
-            time1 = st.number_input("Duration of Effort 1 (seconds)", 
-                                  min_value=60, max_value=600, value=180)
-            power1 = st.number_input
+            if st.button("Calculate Critical Power"):
+                if len(efforts) < 2:
+                    st.error("Please provide at least 2 valid efforts with duration and power")
+                    cp, w_prime, ftp = None, None, None
+                else:
+                    cp, w_prime, ftp = calculate_cp_multi_effort(efforts)
+                    
+                    st.markdown("""
+                    <div class="reference">
+                    <strong>References:</strong><br>
+                    Monod, H., & Scherrer, J. (1965). The work capacity of a synergic muscular group. <em>Ergonomics</em>, 8(3), 329-338.<br>
+                    Hill, D. W. (1993). The critical power concept. <em>Sports Medicine</em>, 16(4), 237-254.
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    #
