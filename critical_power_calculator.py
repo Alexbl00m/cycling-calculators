@@ -166,7 +166,7 @@ footer {
 # Add your logo
 def add_logo():
     # In a real implementation, replace with the path to your actual logo
-    st.sidebar.image("https://via.placeholder.com/200x100?text=Your+Logo", width=200)
+    st.sidebar.image("Logotype_Light@2x.png", width=200)
 
 add_logo()
 
