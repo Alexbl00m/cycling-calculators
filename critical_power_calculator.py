@@ -213,23 +213,75 @@ def calculate_cp_6min_test(power_6min, weight):
     ftp = 0.95 * cp  # Approximate FTP as 95% of CP
     return cp, w_prime, ftp
 
-# 3-min all-out test (Vanhatalo et al., 2007)
-def calculate_cp_3min_test(end_power):
-    """Calculate CP from 3-min all-out test based on Vanhatalo et al. (2007) with adjustments"""
-    # More conservative estimate based on follow-up research
-    # Burnley et al. (2006) and Johnson et al. (2011) suggest some adjustment might be needed
-    # Applying a 5-10% reduction to account for potential overestimation
-    adjustment_factor = 0.92  # 8% reduction from the raw end power
-    cp = end_power * adjustment_factor
+def calculate_cp_3min_test(end_power, avg_power=None, calculation_method="standard"):
+    """
+    Calculate CP and W' from 3-min all-out test with multiple calculation methods
     
-    # W' would need the full power curve
-    # Without the full power curve, we can't accurately estimate W'
+    Parameters:
+    -----------
+    end_power : float
+        Average power of final 30 seconds (watts)
+    avg_power : float, optional
+        Average power for the entire 3-minute test (watts)
+    calculation_method : str
+        Method to calculate CP:
+        - "standard": Original Vanhatalo method (last 30s power)
+        - "conservative": Apply 8% reduction to standard
+        - "moderate": Apply 5% reduction to standard
+        - "extended": Use average of final 45-60 seconds (not implemented, placeholder)
+    
+    Returns:
+    --------
+    cp : float
+        Critical Power estimate (watts)
+    w_prime : float or None
+        W' estimate (joules) if avg_power is provided, None otherwise
+    ftp : float
+        Functional Threshold Power estimate (watts)
+    """
+    # CP calculation based on selected method
+    if calculation_method == "standard":
+        # Original method from Vanhatalo et al. (2007)
+        cp = end_power
+        adjustment_description = "Standard approach: End-test power (last 30s)"
+    
+    elif calculation_method == "conservative":
+        # More conservative estimate with 8% reduction
+        cp = end_power * 0.92
+        adjustment_description = "Conservative: 8% reduction from end-test power"
+    
+    elif calculation_method == "moderate":
+        # Moderate adjustment with 5% reduction
+        cp = end_power * 0.95
+        adjustment_description = "Moderate: 5% reduction from end-test power"
+    
+    elif calculation_method == "extended":
+        # Placeholder for potential implementation of extended averaging
+        # Would require capturing more detailed power data
+        cp = end_power * 0.97  # Approximate effect of longer averaging window
+        adjustment_description = "Extended: Simulated 45-60s final average"
+    
+    else:
+        # Default to standard method
+        cp = end_power
+        adjustment_description = "Standard approach: End-test power (last 30s)"
+    
+    # W' calculation if average power is provided
     w_prime = None
+    if avg_power is not None:
+        # W' calculation based on the difference between total work and work at CP
+        # W' = (Average Power - CP) * Test Duration
+        test_duration = 180  # 3 minutes = 180 seconds
+        w_prime = (avg_power - cp) * test_duration
+        
+        # Validate W' value (should be positive)
+        if w_prime <= 0:
+            w_prime = None  # Invalid W' value
     
     # FTP is approximately 95% of CP
     ftp = 0.95 * cp
     
-    return cp, w_prime, ftp
+    return cp, w_prime, ftp, adjustment_description
 
 # Ramp test (Ramp Rate method, Díaz et al., 2018)
 def calculate_cp_ramp_test(max_power, ramp_rate, weight):
@@ -518,7 +570,7 @@ def main():
             elif method == "3-Minute All-Out Test":
                 st.markdown("""
                 ### 3-Minute All-Out Test Protocol
-                
+            
                 1. **Warm-up thoroughly** for 15-20 minutes
                 2. **Rest** for 5 minutes
                 3. **Perform a 3-minute TRULY all-out effort**:
@@ -526,10 +578,37 @@ def main():
                    - Maintain absolute maximum effort for the entire 3 minutes
                    - DO NOT PACE YOURSELF - go as hard as possible from the start
                 4. **Cool down** at very light intensity
-                
+            
                 **Critical point:** The valid test result depends on a truly all-out effort from the beginning. If you pace yourself, the test will not be valid!
-                
+            
                 **Scientific Background:** Developed by Vanhatalo et al. (2007), this test is based on the concept that after depleting W', power output will fall to CP if maximum effort is maintained.
+            
+                ---
+            
+                ### Key Success Factors
+            
+                **For Valid Results:**
+                * **True "All-Out" Effort**: Begin with maximal acceleration and maintain maximal effort throughout. Any pacing will invalidate results.
+                * **Equipment**: Use an ergometer or power meter with high sampling frequency (≥1Hz).
+                * **Position**: Maintain consistent riding position throughout the test.
+                * **Resistance**: Set appropriately for your fitness level to allow maximal power output.
+                * **Cadence**: Start with a high cadence (100-120 rpm) to maximize initial power output.
+            
+                **Common Pitfalls:**
+                * **Pacing**: The most common issue - subconsciously holding back early in the test.
+                * **Inadequate Warm-up**: Must prime both aerobic and anaerobic systems properly.
+                * **Cadence Selection**: Starting with too low cadence limits initial power output.
+                * **Premature Exhaustion**: Most riders experience severe fatigue at 90-120 seconds - pushing through this period is crucial.
+            
+                **Power Profile Validation:**
+                A valid test typically shows:
+                * Very high initial power (~200-300% of final power)
+                * Rapid decline in the first 60-90 seconds
+                * Relative stabilization in the final minute
+                """, unsafe_allow_html=True)
+                
+                st.info("""
+                **Protocol Note:** The 3-minute all-out test is extremely demanding both physically and mentally. When performed correctly, most athletes describe it as one of the most difficult tests they've ever completed. The severe intensity typically leads to significant physiological distress, with many athletes experiencing nausea, extreme breathlessness, and temporary peripheral vision restriction. These symptoms, while unpleasant, are normal responses to the extreme exertion required for a valid test.
                 """)
                 
             elif method == "Ramp Test":
@@ -606,21 +685,60 @@ def main():
                 debug_print("6-Minute Test calculation completed")
         
         elif method == "3-Minute All-Out Test":
+            col1, col2 = st.columns(2)
+    
+            with col1:
             end_power = st.number_input("Average power of final 30 seconds (watts)", 
-                                       min_value=50, max_value=600, value=220)
+                                   min_value=50, max_value=600, value=220)
+        
+            avg_power = st.number_input("Average power for entire 3-min test (watts, optional for W')", 
+                                  min_value=0, max_value=1000, value=0)
+    
+        with col2:
+            calculation_method = st.radio(
+                "CP Calculation Method",
+                ["standard", "moderate", "conservative"],
+                format_func=lambda x: {
+                    "standard": "Standard (Vanhatalo method)",
+                    "moderate": "Moderate (5% reduction)",
+                    "conservative": "Conservative (8% reduction)"
+                }.get(x)
+            )
+        
+        st.markdown("""
+        <div style="background-color:#f5f5f5; padding:10px; border-radius:5px; margin-top:15px;">
+        <span style="font-size:0.9em;">
+        <strong>Calculation Methods:</strong><br>
+        • <strong>Standard:</strong> Original method using final 30s power<br>
+        • <strong>Moderate:</strong> 5% reduction to account for potential overestimation<br>
+        • <strong>Conservative:</strong> 8% reduction based on comparison studies
+        </span>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    if st.button("Calculate Critical Power"):
+        # Convert avg_power of 0 to None (optional parameter)
+        avg_power_param = avg_power if avg_power > 0 else None
+        
+        cp, w_prime, ftp, adjustment_description = calculate_cp_3min_test(
+            end_power, 
+            avg_power_param, 
+            calculation_method
+        )
+        
+        st.markdown(f"""
+        <div class="reference">
+        <strong>Method used:</strong> {adjustment_description}<br><br>
+        <strong>Reference:</strong> Vanhatalo, A., Doust, J. H., & Burnley, M. (2007).
+        Determination of critical power using a 3-min all-out cycling test.
+        <em>Medicine and Science in Sports and Exercise</em>, 39(3), 548-555.
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if w_prime is None and avg_power > 0:
+            st.warning("Could not calculate a valid W' value. This typically happens when the average power is too close to or less than the calculated CP, which is physiologically unlikely in a properly executed test.")
             
-            if st.button("Calculate Critical Power"):
-                cp, w_prime, ftp = calculate_cp_3min_test(end_power)
-                w_prime = None  # Reset to None as this simple implementation doesn't estimate W'
-                
-                st.markdown("""
-                <div class="reference">
-                <strong>Reference:</strong> Vanhatalo, A., Doust, J. H., & Burnley, M. (2007).
-                Determination of critical power using a 3-min all-out cycling test.
-                <em>Medicine and Science in Sports and Exercise</em>, 39(3), 548-555.
-                </div>
-                """, unsafe_allow_html=True)
-                debug_print("3-Minute Test calculation completed")
+        debug_print("3-Minute Test calculation completed")
         
         elif method == "Ramp Test":
             max_power = st.number_input("Maximum power achieved (watts)", 
