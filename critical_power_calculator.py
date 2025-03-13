@@ -215,11 +215,21 @@ def calculate_cp_6min_test(power_6min, weight):
 
 # 3-min all-out test (Vanhatalo et al., 2007)
 def calculate_cp_3min_test(end_power):
-    """Calculate CP from 3-min all-out test based on Vanhatalo et al. (2007)"""
-    cp = end_power  # The end power (last 30s avg) is directly the CP
+    """Calculate CP from 3-min all-out test based on Vanhatalo et al. (2007) with adjustments"""
+    # More conservative estimate based on follow-up research
+    # Burnley et al. (2006) and Johnson et al. (2011) suggest some adjustment might be needed
+    # Applying a 5-10% reduction to account for potential overestimation
+    adjustment_factor = 0.92  # 8% reduction from the raw end power
+    cp = end_power * adjustment_factor
+    
     # W' would need the full power curve
-    ftp = 0.95 * cp  # Approximate FTP as 95% of CP
-    return cp, None, ftp
+    # Without the full power curve, we can't accurately estimate W'
+    w_prime = None
+    
+    # FTP is approximately 95% of CP
+    ftp = 0.95 * cp
+    
+    return cp, w_prime, ftp
 
 # Ramp test (Ramp Rate method, Díaz et al., 2018)
 def calculate_cp_ramp_test(max_power, ramp_rate, weight):
