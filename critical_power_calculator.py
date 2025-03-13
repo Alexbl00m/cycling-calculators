@@ -150,7 +150,7 @@ def add_logo():
         # Try different possible logo paths
         logo_paths = [
             "https://github.com/Alexbl00m/cycling-calculators/main/Logotype_Light@2x.png",  # Direct in root
-            "logo/Logotype_Light@2x.png",  # In logo folder
+            "Logotype_Light@2x.png",  # In logo folder
             ".devcontainer/Logotype_Light@2x.png"  # In .devcontainer
         ]
         
@@ -267,7 +267,9 @@ def calculate_cp_multi_effort(efforts):
     except:
         return None, None, None
 
-# Calculate fitness metrics
+# Fix 2: Update the calculate_fitness_metrics function
+# Replace the current function with this one:
+
 def calculate_fitness_metrics(cp, w_prime, weight):
     """Calculate various fitness metrics based on CP and W'"""
     if cp is None or weight is None or weight <= 0:
@@ -277,7 +279,7 @@ def calculate_fitness_metrics(cp, w_prime, weight):
     cp_per_kg = cp / weight
     
     # W'/CP - an indicator of anaerobic capacity relative to aerobic power
-    if cp > 0:
+    if cp > 0 and w_prime is not None:  # Add check for w_prime is not None
         w_prime_cp_ratio = w_prime / cp
     else:
         w_prime_cp_ratio = None
@@ -637,14 +639,15 @@ def main():
             
             with col1:
                 time1 = st.number_input("Duration of Effort 1 (seconds)", 
-                                      min_value=60, max_value=600, value=180)
+                          min_value=60, max_value=600, value=180)
                 time2 = st.number_input("Duration of Effort 2 (seconds)", 
-                                      min_value=60, max_value=1800, value=480)
-                time3 = st.number_input("Duration of Effort 3 (seconds)", 
-                                      min_value=60, max_value=3600, value=0)
-                time4 = st.number_input("Duration of Effort 4 (seconds)", 
-                                      min_value=60, max_value=3600, value=0)
-            
+                                      min_value=60, max_value=1800, value=360)
+                # Set min_value to 0 for optional efforts
+                time3 = st.number_input("Duration of Effort 3 (seconds) (optional)", 
+                                      min_value=0, max_value=3600, value=720)
+                time4 = st.number_input("Duration of Effort 4 (seconds) (optional)", 
+                                      min_value=0, max_value=3600, value=1200)
+                        
             with col2:
                 power1 = st.number_input("Average Power of Effort 1 (watts)", 
                                        min_value=0, max_value=2000, value=300)
@@ -755,6 +758,13 @@ def main():
                         <div class="metric-value">{w_prime_cp_ratio:.1f} J/W</div>
                     </div>
                     """, unsafe_allow_html=True)
+                else:
+                    st.markdown(f"""
+                    <div class="metric-card">
+                        <div class="metric-label">W'/CP Ratio</div>
+                        <div class="metric-value">Not available</div>
+                    </div>
+                    """, unsafe_allow_html=True)
                 
                 st.markdown(f"""
                 <div class="metric-card">
@@ -763,8 +773,12 @@ def main():
                 </div>
                 """, unsafe_allow_html=True)
             
+# Fix 4: Update the Classification check to handle None values
+# Replace the classification check:
+
             # Classification
-            if cp_per_kg is not None and w_prime_cp_ratio is not None:
+            if cp_per_kg is not None:
+                # Only attempt to get anaerobic class if w_prime_cp_ratio is available
                 aero_class, anaero_class = classify_cyclist(cp_per_kg, w_prime_cp_ratio, gender.lower())
                 
                 st.write("### Cyclist Classification")
@@ -780,12 +794,21 @@ def main():
                     """, unsafe_allow_html=True)
                 
                 with col2:
-                    st.markdown(f"""
-                    <div class="metric-card">
-                        <div class="metric-label">Anaerobic Classification</div>
-                        <div class="metric-value">{anaero_class}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
+                    # Only display anaerobic classification if available
+                    if w_prime_cp_ratio is not None:
+                        st.markdown(f"""
+                        <div class="metric-card">
+                            <div class="metric-label">Anaerobic Classification</div>
+                            <div class="metric-value">{anaero_class}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"""
+                        <div class="metric-card">
+                            <div class="metric-label">Anaerobic Classification</div>
+                            <div class="metric-value">Not available for this test</div>
+                        </div>
+                        """, unsafe_allow_html=True)
             
             # Power-Duration Curve
             st.write("### Power-Duration Curve")
