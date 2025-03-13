@@ -679,5 +679,176 @@ def main():
                     Hill, D. W. (1993). The critical power concept. <em>Sports Medicine</em>, 16(4), 237-254.
                     </div>
                     """, unsafe_allow_html=True)
-                    
-                    #
+                debug_print("Multi-)
+
+# Display results section
+        if cp is not None and ftp is not None:
+            st.write("---")
+            st.write("## Results")
+            debug_print("Displaying results")
+            
+            # Create three columns for the main metrics
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-label">Critical Power (CP)</div>
+                    <div class="metric-value">{cp:.0f} W</div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            with col2:
+                if w_prime is not None:
+                    st.markdown(f"""
+                    <div class="metric-card">
+                        <div class="metric-label">W' (Anaerobic Work Capacity)</div>
+                        <div class="metric-value">{w_prime/1000:.1f} kJ</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.markdown(f"""
+                    <div class="metric-card">
+                        <div class="metric-label">W' (Anaerobic Work Capacity)</div>
+                        <div class="metric-value">Not available for this test</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+            
+            with col3:
+                st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-label">Functional Threshold Power (FTP)</div>
+                    <div class="metric-value">{ftp:.0f} W</div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            # Calculate additional metrics
+            cp_per_kg, w_prime_cp_ratio, estimated_vo2max = calculate_fitness_metrics(cp, w_prime, weight)
+            
+            # Display additional metrics
+            st.write("### Additional Metrics")
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                if cp_per_kg is not None:
+                    st.markdown(f"""
+                    <div class="metric-card">
+                        <div class="metric-label">Critical Power to Weight Ratio</div>
+                        <div class="metric-value">{cp_per_kg:.2f} W/kg</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                if estimated_vo2max is not None:
+                    st.markdown(f"""
+                    <div class="metric-card">
+                        <div class="metric-label">Estimated VO2max</div>
+                        <div class="metric-value">{estimated_vo2max:.1f} ml/kg/min</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+            
+            with col2:
+                if w_prime is not None and w_prime_cp_ratio is not None:
+                    st.markdown(f"""
+                    <div class="metric-card">
+                        <div class="metric-label">W'/CP Ratio</div>
+                        <div class="metric-value">{w_prime_cp_ratio:.1f} J/W</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-label">FTP to Weight Ratio</div>
+                    <div class="metric-value">{ftp/weight:.2f} W/kg</div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            # Classification
+            if cp_per_kg is not None and w_prime_cp_ratio is not None:
+                aero_class, anaero_class = classify_cyclist(cp_per_kg, w_prime_cp_ratio, gender.lower())
+                
+                st.write("### Cyclist Classification")
+                
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.markdown(f"""
+                    <div class="metric-card">
+                        <div class="metric-label">Aerobic Classification</div>
+                        <div class="metric-value">{aero_class}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                with col2:
+                    st.markdown(f"""
+                    <div class="metric-card">
+                        <div class="metric-label">Anaerobic Classification</div>
+                        <div class="metric-value">{anaero_class}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+            
+            # Power-Duration Curve
+            st.write("### Power-Duration Curve")
+            if w_prime is not None:
+                if method == "Multi-Effort Method (2-4 efforts)" and len(efforts) >= 2:
+                    fig = plot_power_duration_curve(cp, w_prime, efforts)
+                else:
+                    fig = plot_power_duration_curve(cp, w_prime)
+                
+                st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.info("Power-Duration Curve is not available for the 3-Minute All-Out Test without full power data.")
+            
+            # Training Zones
+            st.write("### Power Training Zones")
+            zones = power_zone_calculator(ftp)
+            
+            # Create a DataFrame for the zones
+            zones_df = pd.DataFrame([
+                {"Zone": zone, "Lower Bound": f"{int(bounds[0])} W", "Upper Bound": f"{int(bounds[1])} W" if bounds[1] != float('inf') else "Max"}
+                for zone, bounds in zones.items()
+            ])
+            
+            st.table(zones_df)
+            
+            # Training recommendations
+            st.write("### Training Recommendations")
+            
+            if cp_per_kg < 2.5:  # Beginner
+                st.markdown("""
+                **Focus areas for improvement:**
+                - Build aerobic base with longer, lower intensity rides (Zone 2)
+                - Start with 2-3 structured workouts per week
+                - Include one threshold workout (Zone 4) per week
+                - Rest and recovery are essential - don't overdo it
+                """)
+            elif cp_per_kg < 4.0:  # Intermediate
+                st.markdown("""
+                **Focus areas for improvement:**
+                - Continue aerobic development with polarized training
+                - Include specific threshold workouts (Zone 4) twice weekly
+                - Add VO2max intervals (Zone 5) once per week
+                - Consider specific work to improve W' with short, high-intensity intervals
+                """)
+            else:  # Advanced
+                st.markdown("""
+                **Focus areas for improvement:**
+                - Highly targeted training based on your specific strengths/weaknesses
+                - Periodize training to peak for key events
+                - Include specific workouts targeting CP (long intervals at 95-105% of CP)
+                - For W' development, include very short, maximal efforts with full recovery
+                """)
+            
+            # Footer with references
+            st.markdown("""
+            <footer>
+            <p>Developed based on scientific research in exercise physiology and critical power modeling.</p>
+            <p>© Lindblom Coaching</p>
+            </footer>
+            """, unsafe_allow_html=True)
+    except Exception as e:
+        st.error(f"An error occurred: {str(e)}")
+        debug_print(f"Exception details: {traceback.format_exc()}")
+
+if __name__ == "__main__":
+    main()
