@@ -679,7 +679,7 @@ def main():
                     Hill, D. W. (1993). The critical power concept. <em>Sports Medicine</em>, 16(4), 237-254.
                     </div>
                     """, unsafe_allow_html=True)
-                debug_print("Multi-)
+                debug_print("Multi-")
 
 # Display results section
         if cp is not None and ftp is not None:
