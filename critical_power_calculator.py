@@ -688,10 +688,10 @@ def main():
             col1, col2 = st.columns(2)
     
             with col1:
-            end_power = st.number_input("Average power of final 30 seconds (watts)", 
+                end_power = st.number_input("Average power of final 30 seconds (watts)", 
                                    min_value=50, max_value=600, value=220)
         
-            avg_power = st.number_input("Average power for entire 3-min test (watts, optional for W')", 
+                avg_power = st.number_input("Average power for entire 3-min test (watts, optional for W')", 
                                   min_value=0, max_value=1000, value=0)
     
             with col2:
