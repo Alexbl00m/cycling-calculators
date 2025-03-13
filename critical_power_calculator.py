@@ -716,24 +716,24 @@ def main():
         </div>
         """, unsafe_allow_html=True)
     
-    if st.button("Calculate Critical Power"):
-        # Convert avg_power of 0 to None (optional parameter)
-        avg_power_param = avg_power if avg_power > 0 else None
-        
-        cp, w_prime, ftp, adjustment_description = calculate_cp_3min_test(
-            end_power, 
-            avg_power_param, 
-            calculation_method
-        )
-        
-        st.markdown(f"""
-        <div class="reference">
-        <strong>Method used:</strong> {adjustment_description}<br><br>
-        <strong>Reference:</strong> Vanhatalo, A., Doust, J. H., & Burnley, M. (2007).
-        Determination of critical power using a 3-min all-out cycling test.
-        <em>Medicine and Science in Sports and Exercise</em>, 39(3), 548-555.
-        </div>
-        """, unsafe_allow_html=True)
+            if st.button("Calculate Critical Power"):
+                # Convert avg_power of 0 to None (optional parameter)
+                avg_power_param = avg_power if avg_power > 0 else None
+                
+                cp, w_prime, ftp, adjustment_description = calculate_cp_3min_test(
+                    end_power, 
+                    avg_power_param, 
+                    calculation_method
+                )
+            
+            st.markdown(f"""
+            <div class="reference">
+            <strong>Method used:</strong> {adjustment_description}<br><br>
+            <strong>Reference:</strong> Vanhatalo, A., Doust, J. H., & Burnley, M. (2007).
+            Determination of critical power using a 3-min all-out cycling test.
+            <em>Medicine and Science in Sports and Exercise</em>, 39(3), 548-555.
+            </div>
+            """, unsafe_allow_html=True)
         
         if w_prime is None and avg_power > 0:
             st.warning("Could not calculate a valid W' value. This typically happens when the average power is too close to or less than the calculated CP, which is physiologically unlikely in a properly executed test.")
