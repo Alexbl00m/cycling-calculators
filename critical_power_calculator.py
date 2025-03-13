@@ -13,7 +13,7 @@ import os
 import traceback
 
 # Debug mode for troubleshooting
-DEBUG = True
+DEBUG = False
 
 # Helper function for debugging
 def debug_print(message):
