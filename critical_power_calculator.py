@@ -694,16 +694,16 @@ def main():
             avg_power = st.number_input("Average power for entire 3-min test (watts, optional for W')", 
                                   min_value=0, max_value=1000, value=0)
     
-        with col2:
-            calculation_method = st.radio(
-                "CP Calculation Method",
-                ["standard", "moderate", "conservative"],
-                format_func=lambda x: {
-                    "standard": "Standard (Vanhatalo method)",
-                    "moderate": "Moderate (5% reduction)",
-                    "conservative": "Conservative (8% reduction)"
-                }.get(x)
-            )
+            with col2:
+                calculation_method = st.radio(
+                    "CP Calculation Method",
+                    ["standard", "moderate", "conservative"],
+                    format_func=lambda x: {
+                        "standard": "Standard (Vanhatalo method)",
+                        "moderate": "Moderate (5% reduction)",
+                        "conservative": "Conservative (8% reduction)"
+                    }.get(x)
+                )
         
         st.markdown("""
         <div style="background-color:#f5f5f5; padding:10px; border-radius:5px; margin-top:15px;">
