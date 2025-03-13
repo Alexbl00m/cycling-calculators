@@ -149,7 +149,7 @@ def add_logo():
     try:
         # Try different possible logo paths
         logo_paths = [
-            "https://github.com/Alexbl00m/cycling-calculators/main/Logotype_Light@2x.png",  # Direct in root
+            "https://raw.githubusercontent.com/Alexbl00m/cycling-calculators/main/Logotype_Light@2x.png",  # Direct in root
             "Logotype_Light@2x.png",  # In logo folder
             ".devcontainer/Logotype_Light@2x.png"  # In .devcontainer
         ]
